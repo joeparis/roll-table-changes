@@ -21,6 +21,9 @@ def sanitize_line(line: str) -> Optional[str]:
         flags=re.IGNORECASE,
     )
 
+    if line.endswith(", \n"):
+        line = line[:-3] + "\n"
+
     return titlecase(line.strip() + "\n") if line else None
 
 
@@ -32,6 +35,24 @@ def process_file(input_file: Path, output_file: Path) -> None:
         sanitized_lines = [
             sanitize_line(line) for line in infile.readlines() if sanitize_line(line) is not None
         ]
+
+        processed_lines = []
+
+        for i, line in enumerate(sanitized_lines):
+            stripped_line = line.strip()
+
+            if stripped_line.lower() in {"major", "lesser", "moderate", "minor", "greater", "true"}:
+                if processed_lines:
+                    processed_lines[-1] = processed_lines[-1].strip() + f" ({stripped_line})\n"
+            else:
+                processed_lines.append(line)
+
+        seen = set()
+        unique_lines = [line for line in processed_lines if not (line in seen or seen.add(line))]
+
+        # unique_lines will never have a None value because of the filter above
+        # but mypy doesn't seem to know that
+        outfile.writelines(unique_lines)  # type: ignore
 
 
 def process_all_files(input_dir: Path, output_dir: Path) -> None:
