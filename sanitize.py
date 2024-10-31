@@ -28,15 +28,10 @@ def process_file(input_file: Path, output_file: Path) -> None:
     with input_file.open("r", encoding="utf-8") as infile, output_file.open(
         "w", encoding="utf-8"
     ) as outfile:
-        sanitized_lines = sorted(
-            {
-                sanitized_line
-                for line in infile.readlines()
-                if (sanitized_line := sanitize_line(line)) is not None
-            }
-        )
 
-        outfile.writelines(sanitized_lines)
+        sanitized_lines = [
+            sanitize_line(line) for line in infile.readlines() if sanitize_line(line) is not None
+        ]
 
 
 def process_all_files(input_dir: Path, output_dir: Path) -> None:
