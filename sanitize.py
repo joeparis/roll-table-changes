@@ -8,6 +8,7 @@ from titlecase import titlecase
 
 def sanitize_line(line: str) -> Optional[str]:
     ITEM_CATEGORIES = r"(Ammunition|Apex|Armor|Bomb|Companion|Elixir|Held|Mutagen|Oil|Other|Poison|Potion|Rune|Scroll|Shield|Snare|Staff|Structure|Talisman|Tool|Wand|Weapon|Worn)"
+    ITEM_GRADES = r"(major|lesser|moderate|minor|greater|true)"
 
     line = re.sub(rf"(?<!^)\b(?:{ITEM_CATEGORIES})\b.*\n", "", line)
 
@@ -16,10 +17,8 @@ def sanitize_line(line: str) -> Optional[str]:
     line = re.sub(r"\s[UR]", "", line)
 
     line = re.sub(
-        r",\s*(major|lesser|moderate|minor|greater|true)\s*$",
-        lambda match: f" ({match.group(1)})",
-        line,
-        flags=re.IGNORECASE,
+        rf",\s*{ITEM_GRADES}\s*$", lambda match: f" ({match.group(1)})", line, flags=re.IGNORECASE
+    )
     )
 
     line = re.sub(
