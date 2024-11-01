@@ -10,6 +10,8 @@ ITEM_GRADES = r"(major|lesser|moderate|minor|greater|true)"
 ITEM_TYPES = r"(campfire|ladder|chest|horse|boat|agate ellipsoid|amber sphere|amplifying|azure briolette|black disc|black pearl|clear quartz octagon|consumed|cymophane cabochon|delaying|dusty rose prism|envisioning|gold nodule|lavender and green ellipsoid|mottled ellipsoid|nourishing|olivine pendeloque|pale lavender ellipsoid|pale orange rhomboid|pearlescent pyramid|pearly white spindle|peering|pink rhomboid|polished pebble|preserving|rainbow prism|smoothing|sprouting|western star)"
 GRADES = r"(low-grade|medium-grade|high-grade)"
 
+TYPES_AND_GRADES = ITEM_TYPES[1:-1].split("|") + ITEM_GRADES[1:-1].split("|")
+
 
 def sanitize_line(line: str) -> Optional[str]:
 
@@ -58,14 +60,7 @@ def process_file(input_file: Path, output_file: Path) -> None:
 
         processed_lines = []
         for line in sanitized_lines:
-            if (stripped_line := line.strip()).lower() in {
-                "major",
-                "lesser",
-                "moderate",
-                "minor",
-                "greater",
-                "true",
-            }:
+            if (stripped_line := line.strip()).lower() in TYPES_AND_GRADES:
                 if processed_lines:
                     processed_lines[-1] = processed_lines[-1].strip() + f" ({stripped_line})\n"
             else:
@@ -110,10 +105,3 @@ if __name__ == "__main__":
     output_dir = Path(args.output_dir)
 
     process_all_files(input_dir, output_dir)
-
-    TYPES_AND_GRADES = list(
-        (ITEM_TYPES + ITEM_GRADES).replace("(", "").replace(")", "").replace("|", ", ")
-    )
-
-    # foo = GRADES.replace("(", "").replace(")", "").replace("|", ", ")
-    print(TYPES_AND_GRADES)
