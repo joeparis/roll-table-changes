@@ -20,6 +20,7 @@ def sanitize_line(line: str) -> Optional[str]:
     line = re.sub(
         rf",\s*{ITEM_GRADES}\s*$", lambda match: f" ({match.group(1)})", line, flags=re.IGNORECASE
     )
+
     line = re.sub(
         rf",\s*{ITEM_TYPES}\s*", lambda match: f" ({match.group(1)})", line, flags=re.IGNORECASE
     )
@@ -41,6 +42,8 @@ def sanitize_line(line: str) -> Optional[str]:
             line,
             flags=re.IGNORECASE,
         )
+
+    line = line.replace(",", "")
 
     return titlecase(line.strip() + "\n") if line else None
 
@@ -80,16 +83,12 @@ def process_file(input_file: Path, output_file: Path) -> None:
 def process_all_files(input_dir: Path, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    input_file = input_dir / "2nd-level Permanent Items.txt"
-    output_file = output_dir / "2nd-level Permanent Items.txt"
-    process_file(input_file, output_file)
+    for input_file in input_dir.glob("*"):
+        if input_file.is_file():
+            output_file = output_dir / input_file.name
 
-    # for input_file in input_dir.glob("*"):
-    #     if input_file.is_file():
-    #         output_file = output_dir / input_file.name
-
-    #         process_file(input_file, output_file)
-    #         print(f"Processed {input_file} -> {output_file}")
+            process_file(input_file, output_file)
+            print(f"Processed {input_file} -> {output_file}")
 
 
 if __name__ == "__main__":
