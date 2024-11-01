@@ -8,12 +8,14 @@ from titlecase import titlecase
 
 def sanitize_line(line: str) -> Optional[str]:
     line = re.sub(
-        r"(?<!^)\b(?:Ammunition|Apex|Armor|Bomb|Companion|Elixir|Held|Mutagen|Oil|Other|Poison|Potion|Rune|Scroll|Shield|Snare|Staff|Structure|Talisman|Tool|Wand|Weapon|Worn)\b.*",
+        r"(?<!^)\b(?:Ammunition|Apex|Armor|Bomb|Companion|Elixir|Held|Mutagen|Oil|Other|Poison|Potion|Rune|Scroll|Shield|Snare|Staff|Structure|Talisman|Tool|Wand|Weapon|Worn)\b.*\n",
         "",
         line,
     )
     line = re.sub(r"’", "'", line)
+
     line = re.sub(r"\s[UR]", "", line)
+
     line = re.sub(
         r",\s*(major|lesser|moderate|minor|greater|true)\s*$",
         lambda match: f" ({match.group(1)})",
@@ -21,8 +23,23 @@ def sanitize_line(line: str) -> Optional[str]:
         flags=re.IGNORECASE,
     )
 
+    line = re.sub(
+        r"(,\s*)(low-grade|medium-grade|high-grade)",
+        lambda match: f" ({match.group(2)})",
+        line,
+        flags=re.IGNORECASE,
+    )
+
     if line.endswith(", \n"):
         line = line[:-3] + "\n"
+
+    if line.startswith("+"):
+        line = re.sub(
+            r"^(\+\d*)(\s*)(.*)",
+            lambda match: f"{match.group(3)}({match.group(1)})",
+            line,
+            flags=re.IGNORECASE,
+        )
 
     return titlecase(line.strip() + "\n") if line else None
 
@@ -33,15 +50,20 @@ def process_file(input_file: Path, output_file: Path) -> None:
     ) as outfile:
 
         sanitized_lines = [
-            sanitize_line(line) for line in infile.readlines() if sanitize_line(line) is not None
+            sanitized_line for line in infile.readlines() if (sanitized_line := sanitize_line(line))
         ]
 
         processed_lines = []
 
-        for i, line in enumerate(sanitized_lines):
-            stripped_line = line.strip()
-
-            if stripped_line.lower() in {"major", "lesser", "moderate", "minor", "greater", "true"}:
+        for line in sanitized_lines:
+            if (stripped_line := line.strip()).lower() in {
+                "major",
+                "lesser",
+                "moderate",
+                "minor",
+                "greater",
+                "true",
+            }:
                 if processed_lines:
                     processed_lines[-1] = processed_lines[-1].strip() + f" ({stripped_line})\n"
             else:
