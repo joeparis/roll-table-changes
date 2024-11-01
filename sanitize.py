@@ -5,11 +5,13 @@ from typing import Optional
 
 from titlecase import titlecase
 
+ITEM_CATEGORIES = r"(Ammunition|Apex|Armor|Bomb|Companion|Elixir|Held|Mutagen|Oil|Other|Poison|Potion|Rune|Scroll|Shield|Snare|Staff|Structure|Talisman|Tool|Wand|Weapon|Worn)"
+ITEM_GRADES = r"(major|lesser|moderate|minor|greater|true)"
+ITEM_TYPES = r"(campfire|ladder|chest|horse|boat|agate ellipsoid|amber sphere|amplifying|azure briolette|black disc|black pearl|clear quartz octagon|consumed|cymophane cabochon|delaying|dusty rose prism|envisioning|gold nodule|lavender and green ellipsoid|mottled ellipsoid|nourishing|olivine pendeloque|pale lavender ellipsoid|pale orange rhomboid|pearlescent pyramid|pearly white spindle|peering|pink rhomboid|polished pebble|preserving|rainbow prism|smoothing|sprouting|western star)"
+GRADES = r"(low-grade|medium-grade|high-grade)"
+
 
 def sanitize_line(line: str) -> Optional[str]:
-    ITEM_CATEGORIES = r"(Ammunition|Apex|Armor|Bomb|Companion|Elixir|Held|Mutagen|Oil|Other|Poison|Potion|Rune|Scroll|Shield|Snare|Staff|Structure|Talisman|Tool|Wand|Weapon|Worn)"
-    ITEM_GRADES = r"(major|lesser|moderate|minor|greater|true)"
-    ITEM_TYPES = r"(campfire|ladder|chest|horse|boat|agate ellipsoid|amber sphere|amplifying|azure briolette|black disc|black pearl|clear quartz octagon|consumed|cymophane cabochon|delaying|dusty rose prism|envisioning|gold nodule|lavender and green ellipsoid|mottled ellipsoid|nourishing|olivine pendeloque|pale lavender ellipsoid|pale orange rhomboid|pearlescent pyramid|pearly white spindle|peering|pink rhomboid|polished pebble|preserving|rainbow prism|smoothing|sprouting|western star)"
 
     line = re.sub(rf"(?<!^)\b(?:{ITEM_CATEGORIES})\b.*\n", "", line)
 
@@ -26,10 +28,7 @@ def sanitize_line(line: str) -> Optional[str]:
     )
 
     line = re.sub(
-        r"(,\s*)(low-grade|medium-grade|high-grade)",
-        lambda match: f" ({match.group(2)})",
-        line,
-        flags=re.IGNORECASE,
+        rf"(,\s*){GRADES}", lambda match: f" ({match.group(2)})", line, flags=re.IGNORECASE
     )
 
     if line.endswith(", \n"):
@@ -111,3 +110,10 @@ if __name__ == "__main__":
     output_dir = Path(args.output_dir)
 
     process_all_files(input_dir, output_dir)
+
+    TYPES_AND_GRADES = list(
+        (ITEM_TYPES + ITEM_GRADES).replace("(", "").replace(")", "").replace("|", ", ")
+    )
+
+    # foo = GRADES.replace("(", "").replace(")", "").replace("|", ", ")
+    print(TYPES_AND_GRADES)
