@@ -83,12 +83,16 @@ def process_file(input_file: Path, output_file: Path) -> None:
 def process_all_files(input_dir: Path, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    for input_file in input_dir.glob("*"):
-        if input_file.is_file():
-            output_file = output_dir / input_file.name
+    input_file = input_dir / "2nd-level Permanent Items.txt"
+    output_file = output_dir / "2nd-level Permanent Items.txt"
+    process_file(input_file, output_file)
 
-            process_file(input_file, output_file)
-            print(f"Processed {input_file} -> {output_file}")
+    # for input_file in input_dir.glob("*"):
+    #     if input_file.is_file():
+    #         output_file = output_dir / input_file.name
+
+    #         process_file(input_file, output_file)
+    #         print(f"Processed {input_file} -> {output_file}")
 
 
 if __name__ == "__main__":
